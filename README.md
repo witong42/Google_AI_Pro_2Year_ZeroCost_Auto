@@ -1,0 +1,2 @@
+# Google_AI_Pro_2Year_ZeroCost_Auto
+Google_AI_Pro_2Year_ZeroCost_Auto

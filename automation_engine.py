@@ -900,7 +900,26 @@ class GoogleUltraAutomator:
                 else:
                     break
 
-            if "signin/identifier" in page.url or "ServiceLogin" in page.url:
+            if "challenge/" in page.url and "accounts.google.com" in page.url:
+                # Google is waiting for a phone approval / a picked method: reloading here would
+                # restart the whole sign-in and burn approval attempts, so wait in place instead.
+                self.log("⏳ Google is waiting for the phone approval, holding up to 150s...")
+                waited = 0
+                while waited < 150:
+                    await asyncio.sleep(5)
+                    waited += 5
+                    if "accounts.google.com" not in page.url:
+                        break
+                if "accounts.google.com" not in page.url:
+                    continue
+                self.log("⚠️ No approval yet, re-opening the sign-in flow once...")
+                await self.safe_goto(
+                    page,
+                    "https://accounts.google.com/ServiceLogin?hl=zh-CN&continue=https%3A%2F%2Fone.google.com%2Fplans%3Fhl%3Dzh-CN",
+                    timeout=40000,
+                )
+                await asyncio.sleep(3.5)
+            elif "signin/identifier" in page.url or "ServiceLogin" in page.url:
                 if self.proxy_bridge:
                     self.proxy_bridge.rotate_session()
                 self.log("⚠️ Sign-in page responding slowly, retrying the submit flow...")
@@ -910,6 +929,23 @@ class GoogleUltraAutomator:
                     timeout=40000,
                 )
                 await asyncio.sleep(3.5)
+
+        try:
+            jar = await page.context.cookies("https://accounts.google.com")
+        except Exception:
+            jar = []
+        if not any(c.get("name") in ("SID", "__Secure-1PSID") for c in jar):
+            self.log("⚠️ No session cookie yet (never finished signing in), waiting up to 150s more...")
+            waited = 0
+            while waited < 150:
+                await asyncio.sleep(5)
+                waited += 5
+                try:
+                    jar = await page.context.cookies("https://accounts.google.com")
+                except Exception:
+                    jar = []
+                if any(c.get("name") in ("SID", "__Secure-1PSID") for c in jar):
+                    break
 
         await self.save_screenshot(page, "step1_done")
         self.log(f"✅ Step 1 done, current page: {page.url[:80]}")

@@ -2,6 +2,10 @@
   Google AI Pro (5 TB) zero-cost 2 years (US$0.00 -> 24 months) full-auto console
 ========================================================================
 
+English macOS port of the original project worldonlyu/Google_AI_Pro_2Year_ZeroCost_Auto.
+The original targets Windows; this repo translates the console, the launchers and
+the docs to English and adds macOS support. Behaviour of the flow itself is unchanged.
+
 [1. Requirements]
 Common:
 1. Google Chrome installed (the macOS default location /Applications works)
@@ -58,7 +62,4 @@ Either way the browser opens the console at http://127.0.0.1:8765 on its own.
      Step 5: go to Google Play, cancel auto-renew, lock the 2-year entitlement and
              screenshot it as proof
 
-
-# Card shop: https://faka.cdkey.si
-# Blog: https://blog.caowo.de
-# TG group: @Hello_Florence
+Upstream project: worldonlyu/Google_AI_Pro_2Year_ZeroCost_Auto

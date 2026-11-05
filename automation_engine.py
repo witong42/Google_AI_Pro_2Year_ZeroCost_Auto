@@ -8,12 +8,27 @@ import re
 import socket
 import struct
 import subprocess
+import sys
 import urllib.parse
 import time
 from typing import Callable, Dict, Any, Optional
 from playwright.async_api import async_playwright
 
 def _find_chrome_path() -> str:
+    if sys.platform == "darwin":
+        candidates = [
+            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            os.path.expanduser("~/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
+            "/Applications/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+            "/Applications/Chromium.app/Contents/MacOS/Chromium",
+        ]
+        for p in candidates:
+            if os.path.exists(p):
+                return p
+        raise RuntimeError(
+            "未找到 Google Chrome。请先安装 Chrome (https://www.google.com/chrome/)，"
+            "或将其拖入 /Applications 目录后重试。"
+        )
     candidates = [
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
         r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
@@ -23,6 +38,57 @@ def _find_chrome_path() -> str:
         if os.path.exists(p):
             return p
     return candidates[0]
+
+
+def kill_port_listener(port: int) -> None:
+    """结束占用指定端口的残留进程（Windows / macOS / Linux 通用）。"""
+    try:
+        if sys.platform == "win32":
+            net_out = subprocess.check_output(
+                f"netstat -ano | findstr :{port}", shell=True
+            ).decode("gbk", errors="ignore")
+            for line in net_out.splitlines():
+                if "LISTENING" in line:
+                    old_pid = line.strip().split()[-1]
+                    subprocess.run(
+                        f"taskkill /F /T /PID {old_pid}",
+                        shell=True,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+        else:
+            out = subprocess.check_output(
+                ["lsof", "-nP", f"-iTCP:{port}", "-sTCP:LISTEN", "-t"],
+                stderr=subprocess.DEVNULL,
+            ).decode("utf-8", errors="ignore")
+            for old_pid in out.split():
+                subprocess.run(
+                    ["kill", "-9", old_pid],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+    except Exception:
+        pass
+
+
+def terminate_process_tree(proc) -> None:
+    """结束浏览器进程（Windows 用 taskkill /T，类 Unix 用 terminate + kill）。"""
+    try:
+        if sys.platform == "win32":
+            subprocess.run(
+                f"taskkill /F /T /PID {proc.pid}",
+                shell=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        else:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+    except Exception:
+        pass
 
 
 CHROME_PATH = _find_chrome_path()
@@ -1741,14 +1807,7 @@ class GoogleUltraAutomator:
         chrome_args.append("about:blank")
 
         # Cleanly kill any lingering process listening on self.port
-        try:
-            net_out = subprocess.check_output(f"netstat -ano | findstr :{self.port}", shell=True).decode("gbk", errors="ignore")
-            for line in net_out.splitlines():
-                if "LISTENING" in line:
-                    old_pid = line.strip().split()[-1]
-                    subprocess.run(f"taskkill /F /T /PID {old_pid}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except Exception:
-            pass
+        kill_port_listener(self.port)
         await asyncio.sleep(0.8)
 
         self.proc = subprocess.Popen(chrome_args)
@@ -1788,7 +1847,4 @@ class GoogleUltraAutomator:
             if self.proxy_bridge:
                 await self.proxy_bridge.stop()
             if self.proc:
-                try:
-                    subprocess.run(f"taskkill /F /T /PID {self.proc.pid}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                except Exception:
-                    pass
+                terminate_process_tree(self.proc)

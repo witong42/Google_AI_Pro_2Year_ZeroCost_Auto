@@ -406,6 +406,7 @@ def _launch_on_interactive_desktop(args: List[str]):
     """
     Launch a GUI process (e.g. Chrome) explicitly onto the user's interactive desktop (winsta0\\default)
     even if the backend server was started inside an isolated/background desktop session (e.g. exebox).
+    On macOS/Linux this falls through to a plain Popen, which is already the foreground desktop session.
     """
     if os.name == "nt":
         try:

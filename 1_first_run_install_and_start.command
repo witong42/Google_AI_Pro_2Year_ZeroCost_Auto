@@ -1,8 +1,8 @@
 #!/bin/bash
-# Google AI Pro (5 TB) 全自动控制台 — macOS 首次运行：安装依赖并启动
+# Google AI Pro (5 TB) full-auto console — first run on macOS: install deps and start
 set -u
 cd "$(dirname "$0")" || exit 1
-trap 'echo; echo "已退出。"; exit 0' INT TERM
+trap 'echo; echo "Exited."; exit 0' INT TERM
 
 title() {
   echo "======================================================================"
@@ -22,32 +22,32 @@ pick_python() {
   return 1
 }
 
-title "正在检查 Python 并创建本地虚拟环境 (.venv)..."
+title "Checking Python and creating a local virtualenv (.venv)..."
 PY="$(pick_python)" || {
-  echo "❌ 未找到 Python 3.10 或更高版本。"
-  echo "   请先安装：brew install python@3.12  或  https://www.python.org/downloads/"
-  read -n 1 -s -r -p "按任意键退出..."
+  echo "❌ Python 3.10 or newer not found."
+  echo "   Install it first: brew install python@3.12  or  https://www.python.org/downloads/"
+  read -n 1 -s -r -p "Press any key to exit..."
   exit 1
 }
-echo "使用 Python: $PY ($("$PY" -V 2>&1))"
+echo "Using Python: $PY ($("$PY" -V 2>&1))"
 
 if [ ! -x .venv/bin/python ]; then
   if ! "$PY" -m venv .venv; then
-    echo "❌ 创建虚拟环境失败。"
-    read -n 1 -s -r -p "按任意键退出..."
+    echo "❌ Could not create the virtualenv."
+    read -n 1 -s -r -p "Press any key to exit..."
     exit 1
   fi
 fi
 
-title "正在安装依赖 (fastapi, uvicorn, playwright)..."
+title "Installing dependencies (fastapi, uvicorn, playwright)..."
 ./.venv/bin/python -m pip install --upgrade pip >/dev/null 2>&1
 if ! ./.venv/bin/python -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple; then
-  echo "❌ 依赖安装失败，请检查网络后重试。"
-  read -n 1 -s -r -p "按任意键退出..."
+  echo "❌ Dependency install failed, check the network and retry."
+  read -n 1 -s -r -p "Press any key to exit..."
   exit 1
 fi
 
-title "正在启动 Web 控制台 (http://127.0.0.1:8765) ..."
+title "Starting the web console (http://127.0.0.1:8765) ..."
 (
   for _ in $(seq 1 120); do
     if curl -s -o /dev/null "http://127.0.0.1:8765"; then
@@ -59,4 +59,4 @@ title "正在启动 Web 控制台 (http://127.0.0.1:8765) ..."
 ) &
 
 ./.venv/bin/python app.py
-read -n 1 -s -r -p "服务已停止，按任意键退出..."
+read -n 1 -s -r -p "Server stopped, press any key to exit..."

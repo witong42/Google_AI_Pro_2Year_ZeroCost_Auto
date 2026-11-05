@@ -1,60 +1,64 @@
 ========================================================================
-  Google AI Pro (5 TB) 零成本两年 (US$0.00 -> 24个月) 全自动控制台
+  Google AI Pro (5 TB) zero-cost 2 years (US$0.00 -> 24 months) full-auto console
 ========================================================================
 
-【一、运行环境要求】
-通用：
-1. 已安装 Google Chrome 浏览器（macOS 默认路径 /Applications 即可）
-2. 网络环境：本机开启美区（US）代理，或在控制台左侧填写代理模板
+[1. Requirements]
+Common:
+1. Google Chrome installed (the macOS default location /Applications works)
+2. Network: a US proxy on this machine, or a proxy template pasted into the console
 
-Windows 10 / 11：
-3. 已安装 Python 3.10 或更高版本（安装时勾选 Add Python to PATH）
+Windows 10 / 11:
+3. Python 3.10 or newer, installed with "Add Python to PATH"
 
-macOS：
-3. 已安装 Python 3.10 或更高版本（brew install python@3.12，或 python.org 安装包）
-4. 首次运行会在项目目录内自动创建本地虚拟环境 .venv，依赖装在里面，不污染系统 Python
+macOS:
+3. Python 3.10 or newer (brew install python@3.12, or the python.org installer)
+4. The first run creates a local virtualenv (.venv) inside the project; dependencies
+   stay in it and never touch the system Python
 
-【二、快速启动步骤】
-Windows：
-1. 首次使用请双击运行：【1_首次运行_安装依赖并启动.bat】
-2. 之后日常使用直接双击：【2_启动控制台.bat】
+[2. Quick start]
+Windows:
+1. First use: double-click [1_first_run_install_and_start.bat]
+2. Daily use: double-click [2_start_console.bat]
 
-macOS：
-1. 首次使用请双击运行：【1_首次运行_安装依赖并启动.command】
-2. 之后日常使用直接双击：【2_启动控制台.command】
-3. 若双击提示“无法打开，因为无法验证开发者”：右键点该文件 → 打开；或在终端执行一次
-   chmod +x *.command
+macOS:
+1. First use: double-click [1_first_run_install_and_start.command]
+2. Daily use: double-click [2_start_console.command]
+3. If macOS says "cannot be opened because the developer cannot be verified":
+   right-click the file -> Open, or run once in Terminal: chmod +x *.command
 
-两者浏览器都会自动打开控制台页面：http://127.0.0.1:8765
+Either way the browser opens the console at http://127.0.0.1:8765 on its own.
 
-【三、自定义填写支付卡 & 跑号说明】
-1. 填写支付卡（必填）：
-   - 在网页左侧【全局配置与内联免税绑卡】区域，填入你自己的 Visa 或 Mastercard 外币卡：
-     * 卡号（16位数字）
-     * 有效期（月 / 年，如 08 / 29）
-     * 安全码（3位 CVC）
-     * 持卡人英文姓名
-     * 免税邮编默认已填好 97201（美国俄勒冈免税州），无需修改
-   - 填写后点击【💾 保存配置】。
-   - 注：脚本内置严格 0 元消费保护，仅在结账弹窗确认为 US$0.00 时才会点击订阅，全程 0 扣费。
+[3. Entering your card and running accounts]
+1. Card details (required):
+   - In the "Global tax-free region, zero-cost 2-year Pro plan and card settings"
+     block on the left, enter your own Visa or Mastercard foreign card:
+     * Card number (16 digits)
+     * Expiry (month / year, e.g. 08 / 29)
+     * Security code (3-digit CVC)
+     * Cardholder name as printed on the card
+     * The tax-free ZIP is pre-filled with 97201 (Oregon, no sales tax) — leave it
+   - Click [💾 Save settings] after filling it in.
+   - The script has a hard zero-cost guard: it only clicks subscribe when the
+     checkout dialog confirms US$0.00, so nothing is ever charged.
 
-2. 批量导入 Google 账号：
-   - 在网页右侧【批量放号导入区】粘贴账号（每行一个），支持以下任意格式：
-     * 邮箱----密码----辅助邮箱
-     * 邮箱----密码----辅助邮箱----2FA密钥
-     * 邮箱----密码----2FA密钥
-   - 点击【➕ 一键导入账号列表】。
+2. Bulk-import Google accounts:
+   - Paste accounts into the "Bulk import" box on the right, one per line. Supported:
+     * email----password----recovery email
+     * email----password----recovery email----2FA secret
+     * email----password----2FA secret
+   - Click [➕ Import account list].
 
-3. 开始全自动执行：
-   - 点击单个账号右侧的【▶ 执行】或顶部的【▶ 批量全自动执行】。
-   - 脚本会自动完成：
-     Step 1: 自动登录 Google 并通过辅助邮箱 / 2FA 验证
-     Step 2: 内联免税绑卡 + 首层 12 个月免费包 (US$0.00)
-     Step 3: 叠加二层 6 个月免费包 (US$0.00 -> 18个月)
-     Step 4: 叠加三层 6 个月免费包 (US$0.00 -> 24个月封顶)
-     Step 5: 自动前往 Google Play 取消自动续订，锁死 2 年到期权益并截图验真
+3. Start the automation:
+   - Click [▶ Run full flow] next to one account, or the batch run button at the top.
+   - The script does, in order:
+     Step 1: sign in to Google and pass the recovery email / 2FA check
+     Step 2: inline tax-free card binding + tier 1 12-month free package (US$0.00)
+     Step 3: stack tier 2 6-month free package (US$0.00 -> 18 months)
+     Step 4: stack tier 3 6-month free package (US$0.00 -> 24-month cap)
+     Step 5: go to Google Play, cancel auto-renew, lock the 2-year entitlement and
+             screenshot it as proof
 
 
-# 卡网：https://faka.cdkey.si
-# 博客：https://blog.caowo.de
-# TG群：@Hello_Florence
+# Card shop: https://faka.cdkey.si
+# Blog: https://blog.caowo.de
+# TG group: @Hello_Florence
